@@ -1,0 +1,204 @@
+:root {
+  --neo-duration: 300ms;
+  --neo-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-anim] {
+  animation-duration: var(--neo-duration);
+  animation-timing-function: var(--neo-ease);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in { animation-name: fade-in; }
+
+.card-hover {
+  transition: transform var(--neo-duration) var(--neo-ease), box-shadow var(--neo-duration) var(--neo-ease);
+}
+.card-hover:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+
+.slide-in {
+  animation: slide-in var(--neo-duration) var(--neo-ease) both;
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.zoom-on-hover { transition: transform var(--neo-duration) var(--neo-ease); }
+.zoom-on-hover:hover { transform: scale(1.03); }
+
+/* Staggered children reveal */
+.stagger > * { opacity: 0; animation: fade-in 420ms var(--neo-ease) both; }
+.stagger > *:nth-child(1) { animation-delay: 40ms; }
+.stagger > *:nth-child(2) { animation-delay: 80ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 160ms; }
+.stagger > *:nth-child(5) { animation-delay: 200ms; }
+.stagger > *:nth-child(6) { animation-delay: 240ms; }
+.stagger > *:nth-child(7) { animation-delay: 280ms; }
+.stagger > *:nth-child(8) { animation-delay: 320ms; }
+.stagger > *:nth-child(9) { animation-delay: 360ms; }
+.stagger > *:nth-child(10) { animation-delay: 400ms; }
+.stagger > *:nth-child(11) { animation-delay: 440ms; }
+.stagger > *:nth-child(12) { animation-delay: 480ms; }
+
+/* Focus ring utility for inputs/buttons */
+.neo-focus { outline: none; box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1); }
+
+/* Hero overlay with transparent top so content behind header is visible */
+.hero-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(255,255,255,0.65) 0%,
+    rgba(255,255,255,0.35) 30%,
+    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.00) 75%
+  );
+}
+
+/* Marquee (infinite horizontal scroll) */
+@keyframes marquee-scroll {
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(calc(-50% - var(--marquee-fix, 0px)),0,0); }
+}
+
+.marquee {
+  position: relative;
+  overflow: hidden;
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content; /* actual content width (two identical groups) */
+  animation: marquee-scroll var(--marquee-duration, 25s) linear infinite;
+}
+
+.marquee:hover .marquee__track { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee__track { animation: none; }
+}
+
+/* Thin gradient divider between sections */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(to right, rgba(203,213,225,0), rgba(203,213,225,1), rgba(203,213,225,0));
+}
+
+/* Subtle glow ring on hover for cards */
+.glow-ring { transition: box-shadow 200ms ease; }
+.glow-ring:hover { box-shadow: 0 0 0 8px rgba(15,23,42,0.06); }
+
+/* Feathered soft shadow for cards */
+.soft-shadow {
+  transition: box-shadow 220ms ease, transform 220ms ease;
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.06),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+.soft-shadow:hover {
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.08),
+    0 4px 16px rgba(0,0,0,0.06);
+}
+
+/* Subtle 3D tilt on hover for media frames */
+.tilt-on-hover { transition: transform 300ms ease; transform-style: preserve-3d; }
+.group:hover .tilt-on-hover { transform: perspective(1000px) rotateX(3deg) rotateY(-3deg) scale(1.02); }
+
+/* Button press micro-interaction */
+.btn-press { transition: transform 120ms ease, box-shadow 200ms ease; }
+.btn-press:active { transform: translateY(1px) scale(0.98); }
+
+/* Page load transition overlay */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,1);
+  backdrop-filter: blur(0px);
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 420ms ease, backdrop-filter 420ms ease;
+}
+.page-transition.hidden {
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: blur(0px);
+}
+
+/* Scroll reveal utilities */
+.reveal-up { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 600ms ease; }
+.in-view { opacity: 1 !important; transform: translateY(0) !important; }
+
+/* Waterfall stagger using keyframes so each child starts at a different time */
+@keyframes revealUpKF {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.stagger:not(.in-view) > * {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: revealUpKF 560ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-play-state: paused;
+}
+.stagger.in-view > * { animation-play-state: running; }
+/* Overlapping delays for waterfall effect */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 90ms; }
+.stagger > *:nth-child(3) { animation-delay: 180ms; }
+.stagger > *:nth-child(4) { animation-delay: 270ms; }
+.stagger > *:nth-child(5) { animation-delay: 360ms; }
+.stagger > *:nth-child(6) { animation-delay: 450ms; }
+.stagger > *:nth-child(7) { animation-delay: 540ms; }
+.stagger > *:nth-child(8) { animation-delay: 630ms; }
+.stagger > *:nth-child(9) { animation-delay: 720ms; }
+.stagger > *:nth-child(10) { animation-delay: 810ms; }
+.stagger > *:nth-child(11) { animation-delay: 900ms; }
+.stagger > *:nth-child(12) { animation-delay: 990ms; }
+
+/* Load-on-mount waterfall for hero content */
+@keyframes introUpKF {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.load-stagger > * {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: introUpKF 600ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+.load-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.load-stagger > *:nth-child(2) { animation-delay: 140ms; }
+.load-stagger > *:nth-child(3) { animation-delay: 280ms; }
+.load-stagger > *:nth-child(4) { animation-delay: 420ms; }
+
+/* Navbar link polish */
+.nav-link { position: relative; transition: background-color 180ms ease, color 180ms ease, transform 180ms ease; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 12px; right: 12px; bottom: 6px;
+  height: 2px; border-radius: 2px;
+  background: rgba(15,23,42,0.25);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 220ms ease;
+  pointer-events: none;
+}
+.nav-link:hover::after { transform: scaleX(1); }
+.nav-link:hover { transform: translateY(-1px); }
+
+/* Navbar load-in animation */
+@keyframes navInKF {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-nav-in { animation: navInKF 300ms ease-out both; }
+
+/* Smooth transition for glass morph */
+.glass-transition { transition: background-color 220ms ease, backdrop-filter 220ms ease, box-shadow 220ms ease, border-color 220ms ease; }
