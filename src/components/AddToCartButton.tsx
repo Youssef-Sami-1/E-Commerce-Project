@@ -17,6 +17,18 @@ export default function AddToCartButton({ product }: { product: any }) {
   const [updating, setUpdating] = useState(false);
   const authPrompt = useAuthPrompt();
 
+  type ServerCartItem = {
+    product?: {
+      _id?: string;
+      id?: string;
+      title?: string;
+      imageCover?: string;
+    };
+    _id?: string;
+    price?: number;
+    count?: number;
+  };
+
   async function onAdd() {
     try {
       setAdding(true);
@@ -24,11 +36,11 @@ export default function AddToCartButton({ product }: { product: any }) {
         await addToCartApi(token, product._id);
         const server = await getCart(token);
         const items = Array.isArray(server?.data?.products)
-          ? server.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (server.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || product.title,
-              price: Number(it.price) || Number(product.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? product.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover || product.imageCover,
             }))
           : [];
@@ -54,11 +66,11 @@ export default function AddToCartButton({ product }: { product: any }) {
         }
         const server = await getCart(token);
         const items = Array.isArray(server?.data?.products)
-          ? server.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (server.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || product.title,
-              price: Number(it.price) || Number(product.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? product.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover || product.imageCover,
             }))
           : [];

@@ -14,6 +14,12 @@ export default function CartPage() {
   const token = (session as any)?.accessToken as string | undefined;
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  type ServerCartItem = {
+    product?: { _id?: string; id?: string; title?: string; imageCover?: string };
+    _id?: string;
+    price?: number;
+    count?: number;
+  };
 
   useEffect(() => {
     let alive = true;
@@ -22,16 +28,15 @@ export default function CartPage() {
       try {
         const server = await getCart(token);
         const serverItems = Array.isArray(server?.data?.products)
-          ? server.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (server.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || '',
-              price: Number(it.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover,
             }))
           : [];
-        const serverIds = new Set(serverItems.map(i => i.productId));
-        const localItems = (useSelector as any) ? (items) : [];
+        const serverIds = new Set(serverItems.map((i: { productId: string }) => i.productId));
         // Merge any local items missing on server
         for (const it of items) {
           if (!serverIds.has(it.productId)) {
@@ -40,11 +45,11 @@ export default function CartPage() {
         }
         const refreshed = await getCart(token);
         const merged = Array.isArray(refreshed?.data?.products)
-          ? refreshed.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (refreshed.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || '',
-              price: Number(it.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover,
             }))
           : [];
@@ -87,11 +92,11 @@ export default function CartPage() {
                       try {
                         const server = await getCart(token);
                         const mapped = Array.isArray(server?.data?.products)
-                          ? server.data.products.map((it: any) => ({
-                              productId: it.product?._id || it.product?.id || it._id,
+                          ? (server.data.products as ServerCartItem[]).map((it) => ({
+                              productId: it.product?._id || it.product?.id || it._id || '',
                               title: it.product?.title || '',
-                              price: Number(it.price) || 0,
-                              quantity: Number(it.count) || 1,
+                              price: Number(it.price ?? 0),
+                              quantity: Number(it.count ?? 1),
                               image: it.product?.imageCover,
                             }))
                           : [];
@@ -117,11 +122,11 @@ export default function CartPage() {
                       try {
                         const server = await getCart(token);
                         const mapped = Array.isArray(server?.data?.products)
-                          ? server.data.products.map((it: any) => ({
-                              productId: it.product?._id || it.product?.id || it._id,
+                          ? (server.data.products as ServerCartItem[]).map((it) => ({
+                              productId: it.product?._id || it.product?.id || it._id || '',
                               title: it.product?.title || '',
-                              price: Number(it.price) || 0,
-                              quantity: Number(it.count) || 1,
+                              price: Number(it.price ?? 0),
+                              quantity: Number(it.count ?? 1),
                               image: it.product?.imageCover,
                             }))
                           : [];
@@ -145,11 +150,11 @@ export default function CartPage() {
                     try {
                       const server = await getCart(token);
                       const mapped = Array.isArray(server?.data?.products)
-                        ? server.data.products.map((it: any) => ({
-                            productId: it.product?._id || it.product?.id || it._id,
+                        ? (server.data.products as ServerCartItem[]).map((it) => ({
+                            productId: it.product?._id || it.product?.id || it._id || '',
                             title: it.product?.title || '',
-                            price: Number(it.price) || 0,
-                            quantity: Number(it.count) || 1,
+                            price: Number(it.price ?? 0),
+                            quantity: Number(it.count ?? 1),
                             image: it.product?.imageCover,
                           }))
                         : [];

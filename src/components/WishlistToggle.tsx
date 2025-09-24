@@ -30,13 +30,13 @@ export default function WishlistToggle({ productId, className }: { productId: st
       }
       // sync from server
       const list = await getWishlist(token);
-      const ids = Array.isArray(list?.data) ? list.data.map((p: any) => p._id) : [];
+      const ids = Array.isArray(list?.data) ? list.data.map((p: { _id: string }) => p._id) : [];
       dispatch(setWishlist(ids));
-    } catch (e) {
+    } catch {
       if (token) {
         try {
           const list = await getWishlist(token);
-          const ids = Array.isArray(list?.data) ? list.data.map((p: any) => p._id) : [];
+          const ids = Array.isArray(list?.data) ? list.data.map((p: { _id: string }) => p._id) : [];
           dispatch(setWishlist(ids));
         } catch {}
       }

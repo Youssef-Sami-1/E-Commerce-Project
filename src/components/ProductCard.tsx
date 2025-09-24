@@ -11,7 +11,15 @@ import AddToCartButton from '@components/AddToCartButton';
 import { useState } from 'react';
 import { useAuthPrompt } from '@components/auth/AuthPromptProvider';
 
-export default function ProductCard({ product }: { product: any }) {
+type Product = {
+  _id: string;
+  title: string;
+  price: number;
+  imageCover: string;
+  category?: { _id?: string };
+};
+
+export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useDispatch<AppDispatch>();
   const { data: session } = useSession();
   const inWishlist = useSelector((s: RootState) => s.wishlist.productIds.includes(product._id));
@@ -35,15 +43,15 @@ export default function ProductCard({ product }: { product: any }) {
       }
       // Sync full list from server
       const list = await getWishlist(token);
-      const ids = Array.isArray(list?.data) ? list.data.map((p: any) => p._id) : [];
+      const ids = Array.isArray(list?.data) ? list.data.map((p: { _id: string }) => p._id) : [];
       dispatch(setWishlist(ids));
-    } catch (e) {
+    } catch {
       // no-op: optionally show toast
       if (token) {
         // revert to server truth
         try {
           const list = await getWishlist(token);
-          const ids = Array.isArray(list?.data) ? list.data.map((p: any) => p._id) : [];
+          const ids = Array.isArray(list?.data) ? list.data.map((p: { _id: string }) => p._id) : [];
           dispatch(setWishlist(ids));
         } catch {}
       }

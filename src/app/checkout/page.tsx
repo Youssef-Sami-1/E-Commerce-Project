@@ -9,6 +9,7 @@ import { setCart, clearCart } from '@redux/slices/cartSlice';
 import { createCheckoutSession } from '@services/orders';
 import { createCashOrder } from '@services/orders';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function CheckoutPage() {
   const { data: session } = useSession();
@@ -16,7 +17,8 @@ export default function CheckoutPage() {
   const dispatch = useDispatch();
   const cart = useSelector((s: RootState) => s.cart.items);
   const router = useRouter();
-  const [addresses, setAddresses] = useState<any[]>([]);
+  type Address = { _id: string; name?: string; details?: string; phone?: string; city?: string };
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false); // general list loading
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +38,10 @@ export default function CheckoutPage() {
     setError(null);
     try {
       const res = await getAddresses(token);
-      const list = Array.isArray(res?.data) ? res.data : [];
+      const list: Address[] = Array.isArray(res?.data) ? (res.data as Address[]) : [];
       setAddresses(list);
       // If no selection or selected was removed, pick first by default
-      if (list.length > 0 && (!selectedAddressId || !list.find(a => a._id === selectedAddressId))) {
+      if (list.length > 0 && (!selectedAddressId || !list.find((a: Address) => a._id === selectedAddressId))) {
         setSelectedAddressId(list[0]._id);
       }
     } catch (e: any) {
@@ -62,17 +64,18 @@ export default function CheckoutPage() {
       try {
         const server = await getCart(token);
         if (server?.data?._id) setCartId(server.data._id);
+        type ServerCartItem = { product?: { _id?: string; id?: string; title?: string; imageCover?: string }; _id?: string; price?: number; count?: number };
         const serverItems = Array.isArray(server?.data?.products)
-          ? server.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (server.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || '',
-              price: Number(it.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover,
             }))
           : [];
         // If local cart has items missing on the server, merge them into server
-        const serverIds = new Set(serverItems.map(i => i.productId));
+        const serverIds = new Set(serverItems.map((i: { productId: string }) => i.productId));
         const local = (alive ? ( (window as any).noop, undefined ) : undefined); // keep linter quiet about window in SSR
         const localItems = ((): { productId: string; title: string; price: number; quantity: number; image?: string }[] => {
           // read latest from Redux
@@ -87,11 +90,11 @@ export default function CheckoutPage() {
         const refreshed = await getCart(token);
         if (refreshed?.data?._id) setCartId(refreshed.data._id);
         const merged = Array.isArray(refreshed?.data?.products)
-          ? refreshed.data.products.map((it: any) => ({
-              productId: it.product?._id || it.product?.id || it._id,
+          ? (refreshed.data.products as ServerCartItem[]).map((it) => ({
+              productId: it.product?._id || it.product?.id || it._id || '',
               title: it.product?.title || '',
-              price: Number(it.price) || 0,
-              quantity: Number(it.count) || 1,
+              price: Number(it.price ?? 0),
+              quantity: Number(it.count ?? 1),
               image: it.product?.imageCover,
             }))
           : [];
@@ -166,7 +169,7 @@ export default function CheckoutPage() {
 
       {!token && (
         <div className="p-4 rounded-xl border border-slate-200 bg-white mb-8">
-          <p className="text-slate-700">Please <a href="/auth" className="underline">sign in</a> to manage addresses and complete checkout.</p>
+          <p className="text-slate-700">Please <Link href="/auth" className="underline">sign in</Link> to manage addresses and complete checkout.</p>
         </div>
       )}
 
