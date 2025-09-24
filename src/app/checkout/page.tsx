@@ -76,7 +76,6 @@ export default function CheckoutPage() {
           : [];
         // If local cart has items missing on the server, merge them into server
         const serverIds = new Set(serverItems.map((i: { productId: string }) => i.productId));
-        const local = (alive ? ( (window as any).noop, undefined ) : undefined); // keep linter quiet about window in SSR
         const localItems = ((): { productId: string; title: string; price: number; quantity: number; image?: string }[] => {
           // read latest from Redux
           // we already have 'cart' in closure; use it
@@ -98,7 +97,12 @@ export default function CheckoutPage() {
               image: it.product?.imageCover,
             }))
           : [];
-        if (alive) dispatch(setCart(merged));
+        // Guard: don't overwrite non-empty local cart with empty server cart
+        if (alive) {
+          if (merged.length > 0 || cart.length === 0) {
+            dispatch(setCart(merged));
+          }
+        }
       } catch {
         // ignore
       }
@@ -110,7 +114,8 @@ export default function CheckoutPage() {
   async function onAdd(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!token) return;
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget as HTMLFormElement;
+    const fd = new FormData(form);
     const payload: AddressPayload = {
       name: String(fd.get('name')),
       details: String(fd.get('details')),
@@ -121,7 +126,7 @@ export default function CheckoutPage() {
     setError(null);
     try {
       const res = await addAddress(token, payload);
-      (e.currentTarget as HTMLFormElement).reset();
+      form.reset();
       // Optimistically prepend new address if available in response
       const created = (res as any)?.data;
       if (created && created._id) {
